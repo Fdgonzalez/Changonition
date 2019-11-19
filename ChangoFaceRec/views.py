@@ -25,7 +25,6 @@ def get_encoding(base_64):
     width = image.shape[0]
     height = image.shape[1]
     encoding = face_recognition.face_encodings(image, known_face_locations=[(0, width, height, 0)])
-    print(encoding)
     return encoding[0]
 
 
@@ -66,10 +65,10 @@ class PersonViewSet(viewsets.ModelViewSet):
         if picture.is_valid():
             picture = picture.data
             face = picture.get('face')
+            print(face)
             index = compare_faces(get_all_encodings(all_persons), get_encoding(face))
             if index != -1:
                 index = all_persons[index].id
             return Response(index)
 
-        # No deberia ser posible
         return Response("Error", status=500)
