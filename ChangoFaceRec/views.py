@@ -20,12 +20,25 @@ En este modulo estan definidas las operaciones de la API
 
 """
 
+""" get_encoding
+toma como parametro una imagen en base64 y devuelve los face_encodings
+que face-recognition va a usar para comparar la imagen de la cara con otras
+es importante que la imagen dada sea de una cara y no que contenga la cara ya que no se recorta la imagen
+"""
+
+
 def get_encoding(base_64):
     image = face_recognition.load_image_file(io.BytesIO(base64.b64decode(base_64)))
     width = image.shape[0]
     height = image.shape[1]
     encoding = face_recognition.face_encodings(image, known_face_locations=[(0, width, height, 0)])
     return encoding[0]
+
+
+""" compare_faces
+toma como parametros una lista de encodings y otro encoding a comparar con los demas
+devuelve el indice del primer encoding de la lista con el que el encoding a comparar fue considerado la misma cara
+"""
 
 
 def compare_faces(all_persons, face):
@@ -38,15 +51,16 @@ def compare_faces(all_persons, face):
     return -1
 
 
+"""get_all_encodings
+toma como parametro una lista de personas y devuelve una lista de los encodings de las caras de esas personas
+"""
+
+
 def get_all_encodings(all_persons):
     encodings = []
     for x in all_persons:
         encodings.append(get_encoding(x.face))
     return encodings
-
-
-# Puntos a mejorar: No calcular encodings siempre (flojisimo)
-# Podria guardarse el encoding (o seria mejor una lista de encodings) en el model
 
 
 class PersonViewSet(viewsets.ModelViewSet):
@@ -56,7 +70,8 @@ class PersonViewSet(viewsets.ModelViewSet):
     queryset = models.Person.objects.all()
     serializer_class = serializers.PeronsSerializer
 
-    """Busca y devuelve el indice de la persona (o -1 si no se encuentra) dada una imagen de la cara codificada en 
+    """ get_index
+    Busca y devuelve el indice de la persona (o -1 si no se encuentra) dada una imagen de la cara codificada en 
     base 64 """
     @action(detail=False, methods=['post'], serializer_class=GetIndexSerializer)
     def get_index(self, request):
